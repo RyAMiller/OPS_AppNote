@@ -1,0 +1,44 @@
+https://beta.openphacts.org/2.2/pathway/getInteractions?uri=http%3A%2F%2Fidentifiers.org%2Fwikipathways%2FWP1425&app_id=0a081d11&app_key=df2facbe3d5cee743dc500a1589e53bf&_format=json
+
+interaction	http://rdf.wikipathways.org/Pathway/WP1425_r74390/WP/Interaction/c8938
+int type	http://vocabularies.wikipathways.org/wp#DirectedInteraction
+source	http://identifiers.org/ensembl/ENSG00000170365	aliasIDs	SMAD1
+target	http://identifiers.org/ensembl/ENSG00000170365	aliasIDs	SMAD1
+
+interaction	http://rdf.wikipathways.org/Pathway/WP1425_r74390/WP/Interaction/e077e
+int type	http://vocabularies.wikipathways.org/wp#DirectedInteraction
+source	http://identifiers.org/ensembl/ENSG00000125845	aliasIDs	BMP2
+target	http://identifiers.org/ncbigene/659	aliasIDs	BMPR2
+
+interaction	http://rdf.wikipathways.org/Pathway/WP1425_r74390/WP/Interaction/e10f7
+int type	http://vocabularies.wikipathways.org/wp#DirectedInteraction
+source	http://identifiers.org/ensembl/ENSG00000198742	aliasIDs	SMURF1
+target	http://identifiers.org/ensembl/ENSG00000124813	aliasIDs	RUNX2
+
+interaction	http://rdf.wikipathways.org/Pathway/WP1425_r74390/WP/Interaction/ca0f6
+int type	http://vocabularies.wikipathways.org/wp#DirectedInteraction
+source	http://identifiers.org/ensembl/ENSG00000198742	aliasIDs	SMURF1
+target	http://identifiers.org/ensembl/ENSG00000170365	aliasIDs	SMAD1
+
+interaction	http://rdf.wikipathways.org/Pathway/WP1425_r74390/WP/Interaction/dd59d
+int type	http://vocabularies.wikipathways.org/wp#DirectedInteraction
+source	http://identifiers.org/ensembl/ENSG00000170365	aliasIDs	SMAD1
+target	http://identifiers.org/ensembl/ENSG00000170365	aliasIDs	SMAD1
+
+interaction	http://rdf.wikipathways.org/Pathway/WP1425_r74390/WP/Interaction/f11bb
+int type	http://vocabularies.wikipathways.org/wp#DirectedInteraction
+source	http://identifiers.org/ensembl/ENSG00000183691	aliasIDs	NOG
+target	http://identifiers.org/ensembl/ENSG00000125845	aliasIDs	BMP2
+
+interaction	http://rdf.wikipathways.org/Pathway/WP1425_r74390/WP/Interaction/fc3a0
+int type	http://vocabularies.wikipathways.org/wp#DirectedInteraction
+source	http://identifiers.org/ensembl/ENSG00000125845	aliasIDs	BMP2
+target	http://identifiers.org/ensembl/ENSG00000107779	aliasIDs	BMPR1A
+
+interaction	http://rdf.wikipathways.org/Pathway/WP1425_r74390/WP/Interaction/b9257
+int type	http://vocabularies.wikipathways.org/wp#DirectedInteraction
+source	http://identifiers.org/ensembl/ENSG00000170365	aliasIDs	SMAD1
+target	http://identifiers.org/ensembl/ENSG00000170365	aliasIDs	SMAD1
+
+PW ID	1425
+interactions for the pathway	8
