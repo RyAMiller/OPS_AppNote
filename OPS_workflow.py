@@ -3,20 +3,45 @@
 import sys
 import urllib.request
 import urllib.parse
-#from urllib2 import urlopen
 import json
 import pprint
 import requests
 import csv
-#import urllib2
+from urllib.parse import urlparse
+from SPARQLWrapper import SPARQLWrapper, XML
+import xml.dom.minidom 
 
-#https://beta.openphacts.org/2.1/pathway/getInteractions?uri=http%3A%2F%2Fidentifiers.org%2Fwikipathways%2FWP1015&app_id=0a081d11&app_key=df2facbe3d5cee743dc500a1589e53bf&_format=json
+def sparqlQ (concept):
+	sparql = SPARQLWrapper("http://sparql.wikipathways.org/")
+	sparql.setQuery("""
+		PREFIX wp:      <http://vocabularies.wikipathways.org/wp#> 
+		PREFIX wprdf:   <http://rdf.wikipathways.org/>
+		PREFIX dc:      <http://purl.org/dc/elements/1.1/> 
+		PREFIX dcterms: <http://purl.org/dc/terms/>
+		PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+		SELECT distinct ?label
+		WHERE { 
+		  <"""+ concept + """> rdfs:label ?label 
+		}
+	""")
+	sparql.setReturnFormat(XML)
+	results = sparql.query().convert()
+	print(concept)
+
+	litList = results.getElementsByTagName("literal")
+	if (litList) :
+		lit1 = litList[0]
+		print (lit1.firstChild.wholeText)
+		sparqlRes = lit1.firstChild.wholeText
+		return sparqlRes
+	else : 
+		sparqlRes = 'NA'
+		return sparqlRes
+		 
+
 OPS_api = 'df2facbe3d5cee743dc500a1589e53bf'
 ops_ID = '0a081d11'
 inputPWID = input('enter your pathway Id to get interactions: ')
-
-#OPS_api = 'df2facbe3d5cee743dc500a1589e53bf'
-#ops_ID = '0a081d11'
 
 apiID = '&app_id=' + ops_ID + '&app_key=' + OPS_api
 apiFormat = '&_format=json'
@@ -37,8 +62,6 @@ i = 0
 
 if isinstance(data['result']['primaryTopic']['latest_version'], (list)):
 	for value in data['result']['primaryTopic']['latest_version'][0]['hasPart']:
-
-
 		i = i + 1
 		interactCount = i
 		jsonvalue = json.dumps(value)
@@ -48,112 +71,33 @@ if isinstance(data['result']['primaryTopic']['latest_version'], (list)):
 		print ('int type\t' + value['type'])
 		f.write('int type\t' + value['type'] + '\n')
 
-
 		if isinstance(loadedValue['source'], (list)):
 			for values in loadedValue['source']:
 				url2bencoded = values['_about']
-				encodedUrl = urllib.parse.quote_plus(url2bencoded)
-				url1 = "https://beta.openphacts.org/2.2/pathways/byTarget?uri="+ encodedUrl +"&app_id=0a081d11&app_key=df2facbe3d5cee743dc500a1589e53bf"
-
-				json_obj1 = requests.get(url1)
-				if json_obj1.status_code != 200:
-					continue
-				json_obj1.raise_for_status()
-				data1 = json_obj1.json()
-				for targValues in data1['result']['items']['hasPart']:
-					if targValues['_about'] == url2bencoded:
-						print ('source\t' + values['_about'] + '\taliasIDs\t' + data1['result']['items']['hasPart']['exactMatch']['prefLabel_en'] )
-						f.write('source\t' + values['_about'] + '\taliasIDs\t' + data1['result']['items']['hasPart']['exactMatch']['prefLabel_en'] + '\n')
-					else: 
-						print ('source\t' + values['_about'])
-						f.write('source\t' + values['_about'] + '\n')
-
-
+				sparqlRes = sparqlQ(url2bencoded)
+				print (sparqlRes, "xxxxxxxxxxxxxxxxxxxxxxxx")
+				print ('source\t' + values['_about'] + '\taliasIDs\t' + sparqlRes + '\n' )
+				f.write('source\t' + values['_about'] + '\taliasIDs\t' + sparqlRes + '\n' )
 		else:
 			url2bencoded = value['source']['_about']
-			encodedUrl = urllib.parse.quote_plus(url2bencoded)
-			url1 = "https://beta.openphacts.org/2.2/pathways/byTarget?uri="+ encodedUrl +"&app_id=0a081d11&app_key=df2facbe3d5cee743dc500a1589e53bf"
-
-			json_obj1 = requests.get(url1)
-			if json_obj1.status_code != 200:
-				continue
-			json_obj1.raise_for_status()
-			data1 = json_obj1.json()
-			#for aliasList in data1['result']['primaryTopic']['exactMatch']:
-			z = 0
-
-			for targValues in data1['result']['items'][z]['hasPart']:
-				j = 0
-				if isinstance(data1['result']['items'][z]['hasPart'], (list)):
-					if data1['result']['items'][z]['hasPart'][j]['_about'] == url2bencoded:
-						
-						for targIDs in data1['result']['items'][z]['hasPart'][j]:
-							print ('source\t' + value['source']['_about'] + '\taliasIDs\t' + data1['result']['items'][z]['hasPart'][j-1]['exactMatch']['prefLabel_en'] )
-							f.write('source\t' + value['source']['_about'] + '\taliasIDs\t' + data1['result']['items'][z]['hasPart'][j-1]['exactMatch']['prefLabel_en'] + '\n')
-							j = j + 1
-				else:
-
-					print ('source\t' + value['source']['_about']  )
-					f.write('source\t' + value['source']['_about']  + '\n')
-				z = z + 1
-
+			sparqlRes = sparqlQ(url2bencoded)
+			print (sparqlRes, "xxxxxxxxxxxxxxxxxxxxxxxx")
+			print ('source\t' + value['source']['_about'] + '\taliasIDs\t' + sparqlRes + '\n' )
+			f.write('source\t' + value['source']['_about'] + '\taliasIDs\t' + sparqlRes + '\n' )
 
 		if isinstance(loadedValue['target'], (list)):
 			for values in loadedValue['target']:
 				url2bencoded = values['_about']
-				encodedUrl = urllib.parse.quote_plus(url2bencoded)
-				url1 = "https://beta.openphacts.org/2.2/pathways/byTarget?uri="+ encodedUrl +"&app_id=0a081d11&app_key=df2facbe3d5cee743dc500a1589e53bf"
-
-				json_obj1 = requests.get(url1)
-				if json_obj1.status_code != 200:
-					continue
-				json_obj1.raise_for_status()
-				data1 = json_obj1.json()
-				#for aliasList in data1['result']['primaryTopic']['exactMatch']:
-				for targValues in data1['result']['items']['hasPart'][0]:
-					if targValues['_about'] == url2bencoded:
-						print ('target\t' + values['_about'] + '\taliasIDs\t' + data1['result']['items']['hasPart']['exactMatch']['prefLabel_en'] )
-						f.write('target\t' + values['_about'] + '\taliasIDs\t' + data1['result']['items']['hasPart']['exactMatch']['prefLabel_en'] + '\n')
-					else: 
-						print ('target\t' + values['_about'])
-						f.write('target\t' + values['_about'] + '\n')
-
+				sparqlRes = sparqlQ(url2bencoded)
+				print (sparqlRes, "xxxxxxxxxxxxxxxxxxxxxxxx")
+				print ('target\t' + values['_about'] + '\taliasIDs\t' + sparqlRes + '\n\n'  )
+				f.write('target\t' + values['_about'] + '\taliasIDs\t' + sparqlRes + '\n\n' )
 		else:
 			url2bencoded = value['target']['_about']
-			encodedUrl = urllib.parse.quote_plus(url2bencoded)
-			url1 = "https://beta.openphacts.org/2.2/pathways/byTarget?uri="+ encodedUrl +"&app_id=0a081d11&app_key=df2facbe3d5cee743dc500a1589e53bf"
-
-			json_obj1 = requests.get(url1)
-			if json_obj1.status_code != 200:
-				continue
-			json_obj1.raise_for_status()
-			data1 = json_obj1.json()
-			z = 0
-
-			for targValues in data1['result']['items'][z]['hasPart']:
-				if isinstance(data1['result']['items'][z]['hasPart'], (list)):
-					j = 0
-					if data1['result']['items'][z]['hasPart'][j]['_about'] == url2bencoded:
-						
-						for targIDs in data1['result']['items'][z]['hasPart'][j]:
-							print ('target\t' + value['target']['_about'] + '\taliasIDs\t' + data1['result']['items'][z]['hasPart'][j-1]['exactMatch']['prefLabel_en'] )
-							f.write('target\t' + value['target']['_about'] + '\taliasIDs\t' + data1['result']['items'][z]['hasPart'][j-1]['exactMatch']['prefLabel_en'] + '\n')
-							j = j + 1
-					else: 
-						print ('target\t' + value['target']['_about'])
-						f.write('target\t' + value['target']['_about'] + '\n')
-						j = j + 1
-				else:
-					if data1['result']['items'][z]['hasPart']['_about'] == url2bencoded:
-						
-						for targIDs in ['result']['items'][z]['hasPart']:
-							print ('target\t' + value['target']['_about'] + '\taliasIDs\t' + data1['result']['items'][z]['hasPart']['exactMatch']['prefLabel_en'] )
-							f.write('target\t' + value['target']['_about'] + '\taliasIDs\t' + data1['result']['items'][z]['hasPart']['exactMatch']['prefLabel_en'] + '\n')
-					else: 
-						print ('target\t' + value['target']['_about'])
-						f.write('target\t' + value['target']['_about'] + '\n')
-				z = z + 1
-				
+			sparqlRes = sparqlQ(url2bencoded)
+			print (sparqlRes, "xxxxxxxxxxxxxxxxxxxxxxxx")
+			print ('target\t' + value['target']['_about'] + '\taliasIDs\t' + sparqlRes + '\n\n' )
+			f.write('target\t' + value['target']['_about'] + '\taliasIDs\t' + sparqlRes + '\n\n' )				
 
 else:
 	for value in data['result']['primaryTopic']['latest_version']['hasPart']:
@@ -167,88 +111,42 @@ else:
 		print ('int type\t' + value['type'])
 		f.write('int type\t' + value['type'] + '\n')
 
-		if isinstance(loadedValue['source'], (list)):
-			for values in loadedValue['source']:
-				url2bencoded = values['_about']
-				encodedUrl = urllib.parse.quote_plus(url2bencoded)
-				url1 = "https://beta.openphacts.org/2.2/pathways/byTarget?uri="+ encodedUrl +"&app_id=0a081d11&app_key=df2facbe3d5cee743dc500a1589e53bf"
-
-				json_obj1 = requests.get(url1)
-				if json_obj1.status_code != 200:
-					continue
-				json_obj1.raise_for_status()
-				data1 = json_obj.json()
-				for targValues in data1['result']['items']['hasPart']:
-					if targValues['_about'] == url2bencoded:
-						print ('source\t' + values['_about'] +'\taliasIDs\t' + data1['result']['primaryTopic']['exactMatch'])
-						f.write('source\t' + values['_about'] + '\taliasIDs\t' + data1['result']['primaryTopic']['exactMatch'] + '\n')
-					else:
-						print ('source\t' + values['_about'] )
-						f.write('source\t' + values['_about'] + '\n')
-
+		print(loadedValue)
+		try:
+			if isinstance(loadedValue['source'], (list)):
+				for values in loadedValue['source']:
+					url2bencoded = values['_about']
+					sparqlRes = sparqlQ(url2bencoded)
+					print (sparqlRes, "xxxxxxxxxxxxxxxxxxxxxxxx")
+					print ('source\t' + values['_about'] + '\taliasIDs\t' + sparqlRes + '\n' )
+					f.write('source\t' + values['_about'] + '\taliasIDs\t' + sparqlRes + '\n' )
+		except KeyError:
+			pass	
 				
 		else:
 			url2bencoded = value['source']['_about']
-			encodedUrl = urllib.parse.quote_plus(url2bencoded)
-			url1 = "https://beta.openphacts.org/2.2/pathways/byTarget?uri="+ encodedUrl +"&app_id=0a081d11&app_key=df2facbe3d5cee743dc500a1589e53bf"
-
-			json_obj1 = requests.get(url1)
-			if json_obj1.status_code != 200:
-				continue
-			json_obj1.raise_for_status()
-			data1 = json_obj1.json()
-			#for aliasList in data1['result']['primaryTopic']['exactMatch']:
-			for targValues in data1['result']['items']['hasPart']:
-				if targValues['_about'] == url2bencoded:
-					print ('source\t' + value['source']['_about'] + '\taliasIDs\t' + data1['result']['items']['hasPart']['exactMatch']['prefLabel_en'] )
-					f.write('source\t' + value['source']['_about'] + '\taliasIDs\t' + data1['result']['items']['hasPart']['exactMatch']['prefLabel_en'] + '\n')
-				else: 
-					print ('source\t' + value['source']['_about'])
-					f.write('source\t' + value['source']['_about'] + '\n')
-
-
-		if isinstance(loadedValue['target'], (list)):
-			for values in loadedValue['target']:
-				url2bencoded = values['_about']
-				encodedUrl = urllib.parse.quote_plus(url2bencoded)
-				url1 = "https://beta.openphacts.org/2.2/pathways/byTarget?uri="+ encodedUrl +"&app_id=0a081d11&app_key=df2facbe3d5cee743dc500a1589e53bf"
-
-				json_obj1 = requests.get(url1)
-				if json_obj1.status_code != 200:
-					continue
-				json_obj1.raise_for_status()
-				data1 = json_obj1.json()
-
-				for targValues in data1['result']['items']['hasPart']:
-					if targValues['_about'] == url2bencoded:
-						print ('target\t' + values['_about'] + '\taliasIDs\t' + data1['result']['items']['hasPart']['exactMatch']['prefLabel_en'] )
-						f.write('target\t' + values['_about'] + '\taliasIDs\t' + data1['result']['items']['hasPart']['exactMatch']['prefLabel_en'] + '\n')
-					else: 
-						print ('target\t' + values['_about'])
-						f.write('target\t' + values['_about'] + '\n')
-
-
+			sparqlRes = sparqlQ(url2bencoded)
+			print (sparqlRes, "xxxxxxxxxxxxxxxxxxxxxxxx")
+			print ('source\t' + value['source']['_about'] + '\taliasIDs\t' + sparqlRes + '\n' )
+			f.write('source\t' + value['source']['_about'] + '\taliasIDs\t' + sparqlRes + '\n' )
+		try:
+			if isinstance(loadedValue['target'], (list)):
+				for values in loadedValue['target']:
+					url2bencoded = values['_about']
+					sparqlRes = sparqlQ(url2bencoded)
+					print (sparqlRes, "xxxxxxxxxxxxxxxxxxxxxxxx")
+					print ('target\t' + values['_about'] + '\taliasIDs\t' + sparqlRes + '\n' )
+					f.write('target\t' + values['_about'] + '\taliasIDs\t' + sparqlRes + '\n\n' )
+		except KeyError:
+			pass	
+					
 		else:
 			url2bencoded = value['target']['_about']
-			encodedUrl = urllib.parse.quote_plus(url2bencoded)
-			url1 = "https://beta.openphacts.org/2.2/pathways/byTarget?uri="+ encodedUrl +"&app_id=0a081d11&app_key=df2facbe3d5cee743dc500a1589e53bf"
-			
-			json_obj1 = requests.get(url1)
-			if json_obj1.status_code != 200:
-				continue
-			json_obj1.raise_for_status()
-			data1 = json_obj1.json()
-			
-			for targValues in data1['result']['items']['hasPart']:
-				if targValues['_about'] == url2bencoded:
-					print ('target\t' + value['target']['_about'] + '\taliasIDs\t' + data1['result']['items']['hasPart']['exactMatch']['prefLabel_en'] )
-					f.write('target\t' + valus['target']['_about'] + '\taliasIDs\t' + data1['result']['items']['hasPart']['exactMatch']['prefLabel_en'] + '\n')
-				else: 
-					print ('target\t' + value['target']['_about'])
-					f.write('target\t' + value['target']['_about'] + '\n')
 
-
-
+			sparqlRes = sparqlQ(url2bencoded)
+			print (sparqlRes, "xxxxxxxxxxxxxxxxxxxxxxxx")
+			print ('target\t' + value['target']['_about'] + '\taliasIDs\t' + sparqlRes + '\n\n' )
+			f.write('target\t' + value['target']['_about'] + '\taliasIDs\t' + sparqlRes + '\n\n' )
 
 print ('PW ID\t',inputPWID)
 f.write('PW ID\t' + inputPWID + '\n')
