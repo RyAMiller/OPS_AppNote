@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Genes interacting with AKT2</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<!-- Copyright (c) 2018  Egon Willighagen <egon.willighagen@maastrichtuniversity.nl>
+     MIT license -->
+
+  <!-- ops.js, d3.js, and depedencies -->
+  <script type="text/javascript" src="https://egonw.github.io/pils/lib/purl.js"></script>
+  <script type="text/javascript" src="https://egonw.github.io/pils/lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="https://egonw.github.io/pils/src/combined.js"></script>
+
+</head>
+
+<body>
+  <h3>Gene</h3>
+  <div id="uri"></div>
+  <p>
+  <table>
+    <thead>
+      <tr>
+        <td><b>Interaction Gene</b></td>
+        <td><b>Database</b></td>
+        <td><b>Number of Interaction</b></td>
+      </tr>
+    </thead>
+    <tbody id="list">
+    </tbody>
+  </table>
+  </p>
+
+  <!-- dynamically create a table with type information -->
+  <script type="text/javascript">
+  
+  var query = location.search.substr(1);
+  var result = {};
+  query.split("&").forEach(function(part) {
+    var item = part.split("=");
+    result[item[0]] = decodeURIComponent(item[1]);
+  });
+  
+  var queryGene = 'http://identifiers.org/ensembl/ENSG00000105221'
+  if (result["uri"]) queryGene = result["uri"]
+  document.getElementById("uri").innerText = "Query: " + queryGene
+
+  var pathwayService = new PathwaySearch(
+    "https://beta.openphacts.org/2.1", "91f5d4d0", "1af5086da757e57c553bfa1351708d5f"
+  );
+
+  // results return asynchronously from the pathwayService.getInteractionsByEntity()
+  // call and are handled by the method
+  var handleInteractingGenes = function(success, status, interactionData) {
+    if (success && status == 200) {
+      var itemCount = interactionData.items.length;
+      var uniqueGenes = []
+      for (var i = 0; i < itemCount; i++) {
+        var interaction = interactionData.items[i]
+        var rowNode = document.createElement("tr");
+        if (interaction.source._about != queryGene) otherGeneURI = interaction.source._about
+        if (interaction.target._about != queryGene) otherGeneURI = interaction.target._about
+        var database = otherGeneURI.split("/")[3]
+        var otherDatabase = document.createElement("td");
+        var otherGene = otherGeneURI.split("/")[4]
+        var otherNode = document.createElement("td");
+        if (!(uniqueGenes.includes(otherGene))) {
+          otherNode.innerText = otherGene
+          otherDatabase.innerText = database
+          rowNode.setAttribute("id", otherGene)
+          rowNode.appendChild(otherNode)
+          rowNode.appendChild(otherDatabase)
+          document.getElementById("list").appendChild(rowNode);
+          pathwayService.countInteractionsByEntity(
+            otherGeneURI, null, null, null, handleInteractionCount
+          );
+          uniqueGenes.push(otherGene)
+        }
+      }
+    }
+  };
+
+  // results return asynchronously from the pathwayService.countInteractionsByEntity()
+  // call and are handled by the method
+  var handleInteractionCount = function(success, status, interactionData) {
+    if (success && status == 200) {
+      var geneURI = interactionData.primaryTopic.isPrimaryTopicOf.split("uri=")[1]
+      geneURI = geneURI.replace(new RegExp("%2F", 'g'), "/")
+      geneURI = geneURI.replace("%3A", ":")
+      var geneid = geneURI.split("/")[4]
+      var count = interactionData.primaryTopic.interactions_count
+
+      var otherNode = document.createElement("td");
+      var otherLink = document.createElement("a");
+      otherLink.setAttribute("href", "?uri=" + geneURI)
+      otherLink.innerText = count
+      otherNode.appendChild(otherLink)
+      document.getElementById(geneid).appendChild(otherNode);
+    }
+  };
+
+  pathwayService.getInteractionsByEntity(
+    queryGene, null, null, null, 0, 1000, null,
+    handleInteractingGenes
+  );
+  </script>
+</body>
+</html>
+
