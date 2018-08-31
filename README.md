@@ -1,4 +1,14 @@
-# OPS_AppNote
+# Supplementary information: Example workflows 
+
+This repository has examples workflows that supplement this paper:
+
+```text
+PUT CITATION HERE
+```
+
+Currently, two example workflows are presented, one in Python and one in HTML and JavaScript.
+
+## Python
 
 This is an example workflow for Open PHACTS that uses the /pathways/getInteractions call for WikiPathways to retrieve the directed interactions that are involved in the pathway and the source and target of the interaction.  
 When running the script, the workflow asks the user which pathway they would like to query.  The script then performs an Open PHACTS API call to the /pathway/getInteractions method and gets the results as JSON.  The results of the call that are parsed by the script are the WikiPathways (WP) interaction ID info from the WP RDF, the type of interaction it is (catalysis, inhibition, or generic directed interaction, for example), and identifiers.org IDs for the source and target of the interactions.  That is what the first part of the script does.
@@ -9,3 +19,9 @@ The script then writes the results to a file and creates a CSV file with a table
 
 Also note that the API Key and API ID are hardcoded for this example, and if the user wishes to use the workflow, they should replace these elemnts with their own ID info.  
 
+## HTML + JavaScript
+
+A second workflow example (`interactingGenes.html`) is written in HTML and JavaScript using the
+[ops.js](https://github.com/openphacts/ops.js/) library. The web page can be opened in a webbrowser and default
+to showing interactions for AKT2. Second, for each interacting biological entity (gene, miRNA, drug, etc) found in
+pathways, it reports the number that entity has too. That can be clicked for further detail.
