@@ -45,8 +45,7 @@ inputPWID = input('enter your pathway Id to get interactions: ')
 
 apiID = '&app_id=' + ops_ID + '&app_key=' + OPS_api
 apiFormat = '&_format=json'
-f = open('getInteractionsF.txt', 'w')
-f = open('getInteractionsF.csv', 'w')
+f = open('getInteractionsOutput.csv', 'w')
 pathwayId = 'WP' + inputPWID
 queryType = 'pathway/getInteractions?uri=http%3A%2F%2Fidentifiers.org%2Fwikipathways%2F' + pathwayId
 url = 'https://beta.openphacts.org/2.2/' + queryType + apiID + apiFormat
