@@ -21,7 +21,7 @@ def sparqlQ (concept):
 		PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 		SELECT distinct ?label
 		WHERE { 
-		  <"""+ concept + """> rdfs:label ?label 
+		  <""" + concept + """> rdfs:label ?label 
 		}
 	""")
 	sparql.setReturnFormat(XML)
