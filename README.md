@@ -3,7 +3,7 @@
 This repository has examples workflows that supplement this paper:
 
 ```text
-PUT CITATION HERE
+https://f1000research.com/articles/7-75/v1
 ```
 
 Currently, two example workflows are presented, one in Python and one in HTML and JavaScript.
